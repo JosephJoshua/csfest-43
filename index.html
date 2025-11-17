@@ -913,13 +913,19 @@
       justify-content: center;
     }
 
-    #qrCanvas {
+    #qrImg {
       width: 140px;
       height: 140px;
       border-radius: 12px;
       border: 1px solid rgba(0,255,255,0.8);
       box-shadow: 0 0 14px rgba(0,255,255,0.8);
       background: #000810;
+      object-fit: contain; /* just in case */
+    }
+
+    /* hidden canvas can keep default size */
+    #qrCanvas {
+      display: none;
     }
 
     .modal-close {
@@ -1278,7 +1284,11 @@
         也可以直接生成二维码，让大家扫码进入邀请页：
       </div>
       <div class="qr-wrapper">
-        <canvas id="qrCanvas"></canvas>
+        <!-- This is what WeChat will see and preview -->
+        <img id="qrImg" alt="邀请二维码（长按识别）">
+
+        <!-- Hidden canvas used only for generating the QR image -->
+        <canvas id="qrCanvas" style="display:none;"></canvas>
       </div>
     </div>
   </div>
@@ -1352,7 +1362,9 @@
 
       function updateQR(link) {
         const canvas = document.getElementById("qrCanvas");
-        if (!canvas || !window.QRious) return;
+        const img = document.getElementById("qrImg");
+        if (!canvas || !img || !window.QRious) return;
+
         if (!qrInstance) {
           qrInstance = new QRious({
             element: canvas,
@@ -1365,6 +1377,8 @@
         } else {
           qrInstance.set({ value: link });
         }
+
+        img.src = canvas.toDataURL("image/png");
       }
 
       const initialName = getNameFromUrl();
